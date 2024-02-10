@@ -1,5 +1,6 @@
 import scrapy
 from bookscraper.items import BookItem
+import random
 
 
 class BookspiderSpider(scrapy.Spider):
@@ -12,6 +13,14 @@ class BookspiderSpider(scrapy.Spider):
             'booksdata.csv': {'format': 'csv', 'overwrite': True},
         }
     }
+
+    user_agent_list = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1',
+    'Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1)',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363',
+]
 
     def parse(self, response):
         books = response.css("article.product_pod")
@@ -47,9 +56,6 @@ class BookspiderSpider(scrapy.Spider):
         book_item["availability"] = table_rows[5].css("td ::text").get(),
         book_item["num_reviews"] = table_rows[6].css("td ::text").get(),
         book_item["stars"] = response.css("p.star-rating").attrib["class"],
-        # print('*************************')
-        # print(book_item["stars"])
-        # print('*************************')
         book_item["category"] = response.xpath("//ul[@class='breadcrumb']/li[@class='active']/preceding-sibling::li[1]/a/text()").get(),
         book_item["description"] = response.xpath("//div[@id='product_description']/following-sibling::p/text()").get(),
         book_item["price"] = response.css("p.price_color ::text").get(),

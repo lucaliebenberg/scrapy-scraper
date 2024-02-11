@@ -1,11 +1,19 @@
 import scrapy
 from bookscraper.items import BookItem
 import random
+from urllib.parse import urlencode
+
+
+# gets the url fo the site we want to scrape, encode it, and return
+def get_proxy_url(url):
+    payload = {'api_key': 'bde06357-2f15-406f-a106-49b78b544469', 'url': url}
+    proxy_url = 'https://proxy.scrapeops.io/v1/?' + urlencode(payload)
+    return proxy_url
 
 
 class BookspiderSpider(scrapy.Spider):
     name = "bookspider"
-    allowed_domains = ["books.toscrape.com"]
+    allowed_domains = ["books.toscrape.com", "https://proxy.scrapeops.io/v1/"]
     start_urls = ["https://books.toscrape.com/"]
 
     custom_settings = {
@@ -13,6 +21,9 @@ class BookspiderSpider(scrapy.Spider):
             'booksdata.csv': {'format': 'csv', 'overwrite': True},
         }
     }
+
+    def start_requests(self):
+        yield scrapy.Request(url=get_proxy_url(self.start_urls[0]), callback=self.parse)
 
     user_agent_list = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36',
@@ -31,7 +42,7 @@ class BookspiderSpider(scrapy.Spider):
                 book_url = "https://books.toscrape.com/" + relative_url
             else:
                 book_url = "https://books.toscrape.com/catalogue/" + relative_url
-            yield response.follow(book_url, callback=self.parse_book_page)
+            yield scrapy.Request(url=get_proxy_url(book_url), callback=self.parse_book_page, meta={"proxy": "http://user-asdas3a4545:12345678@gate.smartproxy.com:7000"})
 
         next_page = response.css("li.next a ::attr(href)").get()
         if next_page is not None:
@@ -39,7 +50,7 @@ class BookspiderSpider(scrapy.Spider):
                 next_page_url = "https://books.toscrape.com/" + next_page
             else:
                 next_page_url = "https://books.toscrape.com/catalogue/" + next_page
-            yield response.follow(next_page_url, callback=self.parse)
+            yield scrapy.Request(url=get_proxy_url(next_page_url), callback=self.parse, meta={"proxy": "http://user-asdas3a4545:12345678@gate.smartproxy.com:7000"})
 
     def parse_book_page(self, response):
 

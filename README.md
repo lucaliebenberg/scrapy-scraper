@@ -1,6 +1,6 @@
 # Book Scraper
 
-Welcome to Book Scraper! This project is designed to scrape book data from a website and store it in a MySQL database.
+This project is designed to scrape book data from a website and store it in a MySQL database.
 
 ## Getting Started
 
